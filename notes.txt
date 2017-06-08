@@ -1,0 +1,10 @@
+The external IP is 78.73.34.221
+
+I have mapped port 80 to RPI which has a apache2 webserver serving
+I have mapped port 8080 to andyPC which has a cherrypy webserver serving
+
+andybrain: 78.73.34.221:80
+pythonpage: 78.73.34.221:8080
+
+also, if im on local network, better to just use
+pythonpage: 192.168.1.167:8080
