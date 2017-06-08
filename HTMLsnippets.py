@@ -134,3 +134,16 @@ def POSTform_radio(methodname, varname):
     </form>
     ''' % (methodname, varname, varname, varname)
     return HTML
+
+
+def POSTform_checkbox(methodname, varname1, varname2):
+    HTML = '''
+    <form action="%s">
+    <input type="checkbox" name="%s" value="Bike">I have a bike
+    <br>
+    <input type="checkbox" name="%s" value="Car">I have a car
+    <br><br>
+    <input type="submit" value="GO">
+    </form>
+    ''' % (methodname, varname1, varname2)
+    return HTML

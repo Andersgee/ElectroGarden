@@ -51,36 +51,42 @@ class HomePage:
 
 class TestPage:
     @cherrypy.expose
-    def index(self, x=0, y=0, z3=0, z4=''):
+    def index(self, x1=0, x2=0, x3=0, x4='', x5='a', x6='b'):
         yield hs.header('TestPage')
         yield hs.topnav(3)
 
         yield hs.div_section()
         yield 'NUMBER form ( CoolFunc(x) = x*3/2+0.1 )'
-        yield hs.POSTform_number('./', 'x')
-        if x:
-            yield '<p>Running that number through CoolFunc gives %.3f</p>' % (CoolFunc(float(x)))
+        yield hs.POSTform_number('./', 'x1')
+        if x1:
+            yield '<p>Running that number through CoolFunc gives %.3f</p>' % (CoolFunc(float(x1)))
         yield hs.div_end()
 
         yield hs.div_section()
         yield 'NUMBER form ( Fibonacci_numbers_below(x) )'
-        yield hs.POSTform_number('./', 'y')
-        if y:
-            yield '<p>fibonacci numbers up to %i: <br> %s</p>' % (float(y), fib_max(float(y)))
+        yield hs.POSTform_number('./', 'x2')
+        if x2:
+            yield '<p>fibonacci numbers up to %i: <br> %s</p>' % (float(x2), fib_max(float(x2)))
         yield hs.div_end()
 
         yield hs.div_section()
         yield 'SLIDER form'
-        yield hs.POSTform_slider('./', 'z3')
-        if z3:
-            yield '<p>here is the z3 value: %s </p>' % (mystrFunc(z3))
+        yield hs.POSTform_slider('./', 'x3')
+        if x3:
+            yield '<p>here is the x3 value: %s </p>' % (mystrFunc(x3))
         yield hs.div_end()
 
         yield hs.div_section()
         yield 'RADIO form'
-        yield hs.POSTform_radio('./', 'z4')
-        if z4:
-            yield '<p>here is the z4 value: %s </p>' % (mystrFunc(z4))
+        yield hs.POSTform_radio('./', 'x4')
+        if x4:
+            yield '<p>here is the x4 value: %s </p>' % (mystrFunc(x4))
+        yield hs.div_end()
+
+        yield hs.div_section()
+        yield 'CHECKBOX form'
+        yield hs.POSTform_checkbox('./', 'x5', 'x6')
+        yield '<p>here is the values: %s, %s </p>' % (x5, x6)
         yield hs.div_end()
 
         yield hs.divider()
