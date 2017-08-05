@@ -8,7 +8,7 @@ from datetime import datetime
 
 class HomePage:
     def __init__(self):
-        self.valve1 = PinObject(29)
+        self.valve1 = PinObject(12)
 
     @cherrypy.expose
     def index(self):
@@ -57,13 +57,13 @@ class PinObject(object):
 
 
 def write_log():
-    f1 = open('waterlog.txt', 'a')
+    f1 = open('/home/pi/dev/ElectroGarden/waterlog.txt', 'a')
     f1.write(datetime.now().strftime('%H:%M') + ' (e)<br>')
     f1.close()
 
 
 def getlog():
-    f1 = open('waterlog.txt', "r")
+    f1 = open('/home/pi/dev/ElectroGarden/waterlog.txt', "r")
     oneline = f1.read()[-13*4:]
     f1.close()
     text = '<p>(a)uto water at:<br>08:30<br>12:00<br>20:30</p>history:<br>' + oneline
