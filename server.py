@@ -3,7 +3,21 @@ import cherrypy
 import RPi.GPIO as GPIO
 import time
 import htmlsnippets as hs
-from datetime import datetime
+import datetime
+import pyowm
+import waterformula
+
+
+def querydate(d, h):
+    q = d + datetime.timedelta(hours=h+(3-d.hour % 3))
+    q = q.replace(minute=0, second=0, microsecond=0)
+    return q
+
+
+def write_log():
+    f1 = open('/home/pi/dev/ElectroGarden/waterlog.txt', 'a')
+    f1.write('%is @ %s MANUAL\n' % (duration, datetime.datetime.now().strftime('%Y%m%d-%H:%M')))
+    f1.close()
 
 
 class HomePage:
@@ -12,26 +26,39 @@ class HomePage:
 
     @cherrypy.expose
     def index(self):
-        yield hs.myheader()
+        yield hs.start_html()
 
-        yield '<div class="row">'
-        yield hs.mygreeting(getlog())
+        yield hs.start_card()
+        yield hs.start_table()
 
-        yield hs.begincard()
-        # yield hs.myswitch(name='s1', action='toggle_valve1', label='<b>Valve1</b>', enabled=1, checked=self.valve1.on)
+        owm = pyowm.OWM('e95b492d3c977db6b58b95f097683036')
+        f = owm.three_hours_forecast_at_coords(59.914009, 16.321638)
+        d = datetime.datetime.now()
+        for n in range(9):
+            q = querydate(d, 3*n)
+            w = f.get_weather_at(q)
+            T = w.get_temperature(unit='celsius')['temp']  # Temperature
+            c = w.get_clouds()/100  # cloud coverage
+            h = w.get_humidity()/100  # humidity
+            E = waterformula.calc(T, c, h)
+            # E = max(0, T - 2*c - 3*h)  # Effective water evaporation.. ish?
+            yield hs.tablerow(E, q.strftime('%H:00 %a'), T, c, h)
+
+        yield hs.end_table()
+        yield hs.end_card()
+
+        yield hs.start_card2()
         yield hs.myswitch(name='s1', action='toggle_valve1', label=switchlabel, enabled=1, checked=self.valve1.on)
-        yield hs.endcard()
+        yield hs.end_card()
 
-        yield '</div>'
-
-        yield hs.myfooter()
+        yield hs.end_html()
 
     @cherrypy.expose
     def toggle_valve1(self):
+        write_log()
         self.valve1.toggle()
         time.sleep(duration)
         self.valve1.toggle()
-        write_log()
         raise cherrypy.HTTPRedirect("./")
 
 
@@ -46,31 +73,18 @@ class PinObject(object):
 
     def toggle(self):
         if self._on:
-            GPIO.output(self._pin, 0)
-            self._on = 0
+            GPIO.output(self._pin, 1)   # new relay is off when 1
             GPIO.cleanup(self._pin)
+            self._on = 0
         else:
             GPIO.setmode(GPIO.BOARD)
             GPIO.setup(self._pin, GPIO.OUT)
-            GPIO.output(self._pin, 1)
+            GPIO.output(self._pin, 0)  # new relay is on when 0
             self._on = 1
 
 
-def write_log():
-    f1 = open('/home/pi/dev/ElectroGarden/waterlog.txt', 'a')
-    f1.write(datetime.now().strftime('%H:%M') + ' (e)<br>')
-    f1.close()
-
-
-def getlog():
-    f1 = open('/home/pi/dev/ElectroGarden/waterlog.txt', "r")
-    oneline = f1.read()[-13*4:]
-    f1.close()
-    text = '<p>(a)uto water at:<br>08:30<br>12:00<br>20:30</p>history:<br>' + oneline
-    return text
-
 if __name__ == '__main__':
-    duration = 2
-    switchlabel = '<b>(e)xtra water now'
+    duration = 5
+    switchlabel = '<h6><b>Water now (%i ml)</b></h6>' % (duration*14)
     config_path = '/home/pi/dev/ElectroGarden/myconf.conf'
     cherrypy.quickstart(HomePage(), config=config_path)
