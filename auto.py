@@ -36,9 +36,9 @@ def toggle_valve():
 
 
 if __name__ == '__main__':
-    mytimes = ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00']
+    mytimes = ['09:00', '12:00', '16:00']
 
-    for i in range(8):
+    for i in range(len(mytimes)):
         schedule.every().day.at(mytimes[i]).do(toggle_valve)
 
     while True:

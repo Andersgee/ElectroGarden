@@ -41,15 +41,16 @@ class HomePage:
             c = w.get_clouds()/100  # cloud coverage
             h = w.get_humidity()/100  # humidity
             E = waterformula.calc(T, c, h)
-            # E = max(0, T - 2*c - 3*h)  # Effective water evaporation.. ish?
             yield hs.tablerow(E, q.strftime('%H:00 %a'), T, c, h)
 
         yield hs.end_table()
         yield hs.end_card()
 
         yield hs.start_card2()
+        yield "<a href='/waterlog.txt'>VIEW LOG</a>"
         yield hs.myswitch(name='s1', action='toggle_valve1', label=switchlabel, enabled=1, checked=self.valve1.on)
         yield hs.end_card()
+
 
         yield hs.end_html()
 
